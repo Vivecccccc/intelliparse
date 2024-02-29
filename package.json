@@ -1,0 +1,96 @@
+{
+  "name": "intelliparse",
+  "displayName": "intelliparse",
+  "description": "",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.87.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "intelliparse",
+          "title": "intelliparse",
+          "icon": "resources/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "intelliparse": [
+        {
+          "id": "intelliparse.hierachy",
+          "name": "Hierachy"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "intelliparse.hierachy",
+        "contents": "No folders being selected. \n [Add Folders](command:intelliparse.addFolders)"
+      }
+    ],
+    "commands": [
+      {
+        "command": "intelliparse.addFolders",
+        "title": "Add Folders",
+        "icon": "$(plus)"
+      },
+      {
+        "command": "intelliparse.removeFolder",
+        "title": "Remove Folder",
+        "icon": "$(minus)"
+      },
+      {
+        "command": "intelliparse.clearFolders",
+        "title": "Remove All Folders",
+        "icon": "$(trash)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "intelliparse.addFolders",
+          "when": "view == intelliparse.hierachy",
+          "group": "navigation"
+        },
+        {
+          "command": "intelliparse.clearFolders",
+          "when": "view == intelliparse.hierachy",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "intelliparse.removeFolder",
+          "when": "view == intelliparse.hierachy && viewItem == rootDir",
+          "group": "navigation"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.87.0",
+    "@types/mocha": "^10.0.6",
+    "@types/node": "18.x",
+    "@typescript-eslint/eslint-plugin": "^7.0.2",
+    "@typescript-eslint/parser": "^7.0.2",
+    "eslint": "^8.56.0",
+    "typescript": "^5.3.3",
+    "@vscode/test-cli": "^0.0.6",
+    "@vscode/test-electron": "^2.3.9"
+  }
+}
