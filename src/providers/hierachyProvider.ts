@@ -2,12 +2,14 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 
+import { decideLanguageFromUri } from '../utils/utils';
+
 export class HierachyTreeItem extends vscode.TreeItem {
     constructor(
         public readonly uri: vscode.Uri,
         public readonly collapsibleState: vscode.TreeItemCollapsibleState,
         public readonly prefix: string,
-        public readonly isRoot: boolean
+        public readonly isRoot: boolean,
     ) {
         let trimmedPath = uri.fsPath.replace(prefix, '');
         if (trimmedPath.startsWith(path.sep)) {
@@ -19,35 +21,60 @@ export class HierachyTreeItem extends vscode.TreeItem {
         this.iconPath = isDirectory ? vscode.ThemeIcon.Folder : vscode.ThemeIcon.File;
         this.contextValue = isRoot ? 'rootDir' : 'children';
     }
-}
 
-class FunctionTreeItem extends HierachyTreeItem {
-    constructor(
-        public readonly uri: vscode.Uri,
-        public readonly collapsibleState: vscode.TreeItemCollapsibleState,
-        public readonly prefix: string = '',
-        public readonly isRoot: boolean = false,
-        public readonly functionName: string,
-        public readonly offset: number,
-    ) {
-        super(uri, collapsibleState, prefix, isRoot);
-        this.iconPath = new vscode.ThemeIcon('symbol-function');
-        this.label = functionName;
-        this.contextValue = 'function';
+    shouldEmphasised(pickedLang: string | undefined): boolean {
+        const stat = fs.statSync(this.uri.fsPath);
+        if (stat.isFile()) {
+            const srcLang = decideLanguageFromUri(this.uri);
+            return srcLang === pickedLang;
+        } else if (stat.isDirectory()) {
+            const children = fs.readdirSync(this.uri.fsPath);
+            for (let i = 0; i < children.length; i++) {
+                let childUri = vscode.Uri.file(path.join(this.uri.fsPath, children[i]));
+                let childItem = new HierachyTreeItem(childUri, vscode.TreeItemCollapsibleState.None, this.prefix, false);
+                if (childItem.shouldEmphasised(pickedLang)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
+
+// class FunctionTreeItem extends HierachyTreeItem {
+//     constructor(
+//         public readonly uri: vscode.Uri,
+//         public readonly collapsibleState: vscode.TreeItemCollapsibleState,
+//         public readonly prefix: string = '',
+//         public readonly isRoot: boolean = false,
+//         public readonly functionName: string,
+//         public readonly offset: number,
+//     ) {
+//         super(uri, collapsibleState, prefix, isRoot);
+//         this.iconPath = new vscode.ThemeIcon('symbol-function');
+//         this.label = functionName;
+//         this.contextValue = 'function';
+//     }
+// }
 
 export class HierachyTreeProvider implements vscode.TreeDataProvider<HierachyTreeItem> {
     private _onDidChangeTreeData: vscode.EventEmitter<HierachyTreeItem | undefined> = new vscode.EventEmitter<HierachyTreeItem | undefined>();
     readonly onDidChangeTreeData: vscode.Event<HierachyTreeItem | undefined> = this._onDidChangeTreeData.event;
 
-    constructor(public folders: vscode.Uri[]) {}
+    constructor(
+        public folders: vscode.Uri[], 
+        public pickedLang: string | undefined
+    ) {}
 
     refresh(): void {
         this._onDidChangeTreeData.fire(undefined);
     }
 
     getTreeItem(element: HierachyTreeItem): vscode.TreeItem | Thenable<vscode.TreeItem> {
+        if (element.shouldEmphasised(this.pickedLang)) {
+            let rawLabel = element.label as string;
+            element.label = {"highlights": [[0, rawLabel.length]], "label": rawLabel};
+        }
         return element;
     }
 
@@ -67,7 +94,12 @@ export class HierachyTreeProvider implements vscode.TreeDataProvider<HierachyTre
                     prefix, 
                     false);
             });
-            return Promise.resolve(children);
+            const filteredChildren = children.filter(child => {
+                let isDirectory = fs.statSync(child.uri.fsPath).isDirectory();
+                let fileLang = decideLanguageFromUri(child.uri);
+                return isDirectory || fileLang === this.pickedLang;
+            });
+            return Promise.resolve(filteredChildren);
         } else {
             // get the common prefix of the root items
             const prefix = this.getCommonPath();
