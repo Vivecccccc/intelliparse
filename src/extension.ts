@@ -136,8 +136,10 @@ export function activate(context: vscode.ExtensionContext) {
 		let targetLang = await vscode.window.showQuickPick(languages, { canPickMany: false, placeHolder: 'Please specify a language'});
 		if (!targetLang || !languagesMap.has(targetLang)) {
 			// tell user that language is required
-			vscode.window.showWarningMessage('No language selected. Falling back to default language [Python].');
-			return "python";
+			let config = vscode.workspace.getConfiguration('intelliparse');
+			let defaultLang = config.get('parserDefaultLanguage') as string;
+			vscode.window.showWarningMessage('No language selected. Falling back to default language [' + defaultLang + '].');
+			return defaultLang;
 		}
 		targetLang = languagesMap.get(targetLang) as string;
 		return targetLang;

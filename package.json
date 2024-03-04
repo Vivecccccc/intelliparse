@@ -12,6 +12,17 @@
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
+    "configuration": {
+      "title": "Parser Configuration",
+      "properties": {
+        "intelliparse.parserDefaultLanguage": {
+          "type": "string",
+          "enum": ["c", "cpp", "csharp", "go", "java", "javascript", "python", "rust", "typescript"],
+          "default": "python",
+          "description": "Set the default language to parse"
+        }
+      }
+    },
     "viewsContainers": {
       "activitybar": [
         {

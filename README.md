@@ -1,71 +1,56 @@
-# intelliparse README
+# Intelliparse VSCode Extension
 
-This is the README for your extension "intelliparse". After writing up a brief description, we recommend including the following sections.
+Intelliparse is a Visual Studio Code extension that allows developers to visualize the hierarchy of methods in their codebase. It supports multiple programming languages and provides a convenient way to navigate through code by organizing methods into a tree view structure.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+- **Language Selection**: Choose from a variety of supported languages for parsing.
+- **Folder Management**: Add or remove folders from the workspace to be included in the parsing process.
+- **Hierarchy View**: View the parsed methods in a hierarchical tree structure within VSCode.
+- **Navigation**: Quickly navigate to the definition of a method by clicking on it within the hierarchy view.
+- **Supports Multiple Languages**: Works with C, C++, C#, Go, Java, JavaScript, Python, Rust, and TypeScript.
 
-For example if there is an image subfolder under your extension project workspace:
+## Usage
 
-\!\[feature X\]\(images/feature-x.png\)
+To get started with Intelliparse, follow these steps:
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+1. **Select Language**: Use the command `intelliparse.selectLang` to pick the programming language of your codebase.
+2. **Add Folders**: Add folders to your workspace that you want to parse using the command `intelliparse.addFolders`.
+3. **Parse File**: The hierachy tree view will be automatically updated with the command `intelliparse.parseFile`.
+4. **Remove Folder**: Remove a folder from the hierarchy view using the command `intelliparse.removeFolder`.
+5. **Clear Folders**: Clear all folders from the hierarchy view using the command `intelliparse.clearFolders`.
+
+## Extension Commands
+
+This extension contributes the following commands:
+
+- `intelliparse.selectLang`: Select the language for parsing.
+- `intelliparse.addFolders`: Add folders to the hierarchy view.
+- `intelliparse.clearFolders`: Clear all folders from the hierarchy view.
+- `intelliparse.removeFolder`: Remove a specific folder from the hierarchy view.
+- `intelliparse.parseFile`: Parse a file or a set of files to update the hierarchy tree.
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+This extension requires you to have the following installed:
 
-## Extension Settings
-
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+- Visual Studio Code
+- Tree-sitter binaries for the respective language you wish to parse
 
 ## Known Issues
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+Currently, there are no known issues. If you encounter any bugs or have a feature request, please open an issue in the repository of this extension.
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
+### 0.0.1
 
-### 1.0.0
+Initial release of Intelliparse.
 
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
+- Supports multiple programming languages.
+- Provides tree view for method hierarchy.
+- Allows folder management for parsing.
 
 ---
 
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+For more information or to contribute to the project, please find the repository link attached to the extension's marketplace page.
