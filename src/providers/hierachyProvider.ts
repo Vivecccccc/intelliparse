@@ -66,7 +66,7 @@ export class HierachyTreeProvider implements vscode.TreeDataProvider<HierachyTre
     readonly onDidChangeTreeData: vscode.Event<HierachyTreeItem | undefined> = this._onDidChangeTreeData.event;
 
     filesSnapshot: vscode.Uri[] = [];
-    methodsSnapshot: { [key: string]: ParsedMethod[] } = {};
+    methodsSnapshot: Map<string, ParsedMethod[]> = new Map();
 
     constructor(
         public folders: vscode.Uri[], 
@@ -101,15 +101,17 @@ export class HierachyTreeProvider implements vscode.TreeDataProvider<HierachyTre
                     let uri = vscode.Uri.file(path.join(element.uri.fsPath, child));
                     // get the path execpt for the basename of the file
                     const prefix = element.uri.fsPath + path.sep;
+                    const isChildDir = fs.statSync(uri.fsPath).isDirectory();
+                    const doesFileHaveMethods = this.methodsSnapshot.has(uri.fsPath);
                     return new HierachyTreeItem(
                         uri, 
-                        vscode.TreeItemCollapsibleState.Collapsed, 
+                        isChildDir || doesFileHaveMethods ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None, 
                         prefix, 
                         false);
                 });
                 return Promise.resolve(children);
             } else {
-                let methods = this.methodsSnapshot[element.uri.fsPath];
+                let methods = this.methodsSnapshot.get(element.uri.fsPath);
                 if (methods) {
                     return methods.map(method => new MethodTreeItem(
                         element.uri, 
@@ -176,7 +178,7 @@ export class HierachyTreeProvider implements vscode.TreeDataProvider<HierachyTre
     private injectMethodInFile() {
         // execute command `intelliparse.parseFile` to get the parsed methods
         vscode.commands.executeCommand('intelliparse.parseFile', this.filesSnapshot).then((parsedMethods) => {
-            const fileMethodMap = parsedMethods as { [key: string]: ParsedMethod[] };
+            const fileMethodMap = parsedMethods as Map<string, ParsedMethod[]>;
             this.methodsSnapshot = fileMethodMap;
         });
         this._onDidChangeTreeData.fire(undefined);

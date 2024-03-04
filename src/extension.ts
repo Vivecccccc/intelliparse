@@ -33,7 +33,7 @@ export function activate(context: vscode.ExtensionContext) {
 				canSelectMany: true,
 				openLabel: 'Add Folders'
 			});
-			if (!pickedLang) {
+			if (uris && !pickedLang) {
 				pickedLang = await pickLang();
 			}
 
@@ -56,12 +56,13 @@ export function activate(context: vscode.ExtensionContext) {
 						if (e.selection && e.selection.length > 0) {
 							let item = e.selection[0];
 							if (item instanceof MethodTreeItem) {
+								let itemMethod = item as MethodTreeItem;
 								// open file and jump to method by method.position
 								vscode.window.showTextDocument(item.uri).then(editor => {
-									let startPosition = new vscode.Position(item.method.position.start.row, item.method.position.start.column);
-									let endPosition = new vscode.Position(item.method.position.end.row, item.method.position.end.column);
-									editor.selection = new vscode.Selection(item.method.position.start, item.method.position.end);
-									editor.revealRange(new vscode.Range(item.method.position.start, item.method.position.end));
+									let startPosition = new vscode.Position(itemMethod.method.position[0][0], itemMethod.method.position[0][1]);
+									let endPosition = new vscode.Position(itemMethod.method.position[1][0], itemMethod.method.position[1][1]);
+									editor.selection = new vscode.Selection(startPosition, endPosition);
+									editor.revealRange(new vscode.Range(startPosition, endPosition), vscode.TextEditorRevealType.InCenter);
 								});
 							}
 							else if (item instanceof HierachyTreeItem) {
@@ -104,31 +105,41 @@ export function activate(context: vscode.ExtensionContext) {
 				pickedLang = await pickLang();
 			}
 			parser = await getParser(pickedLang, context);
-			console.log("parser is ready");
 			
 			const concernedFiles = files ? files : hierachyTreeProvider.filesSnapshot;
 			
 			const lumberjack = langRouter(pickedLang, parser);
-			// const parsedMethods = [];
 			// initialize a dictionary to store the parsed methods and their file paths
-			const parsedMethods: { [key: string]: ParsedMethod[] } = {};
+			const parsedMethods: Map<string, ParsedMethod[]> = new Map();
 			for (let i = 0; i < concernedFiles.length; i++) {
 				const file = concernedFiles[i];
 				const methods = lumberjack.parseFile(file);
-				parsedMethods[file.fsPath] = methods;
+				parsedMethods.set(file.fsPath, methods);
 			}
 			return parsedMethods;
 		}
 	);
 
 	async function pickLang(): Promise<string> {
-		const languages = ["c", "cpp", "csharp", "go", "java", "javascript", "python", "rust", "typescript"];
+		const languages = ["C", "C++", "C#", "Go", "Java", "JavaScript", "Python", "Rust", "TypeScript"];
+		const languagesMap = new Map<string, string>([
+			["C", "c"],
+			["C++", "cpp"],
+			["C#", "csharp"],
+			["Go", "go"],
+			["Java", "java"],
+			["JavaScript", "javascript"],
+			["Python", "python"],
+			["Rust", "rust"],
+			["TypeScript", "typescript"]
+		]);
 		let targetLang = await vscode.window.showQuickPick(languages, { canPickMany: false, placeHolder: 'Please specify a language'});
-		if (!targetLang) {
+		if (!targetLang || !languagesMap.has(targetLang)) {
 			// tell user that language is required
 			vscode.window.showWarningMessage('No language selected. Falling back to default language [Python].');
 			return "python";
 		}
+		targetLang = languagesMap.get(targetLang) as string;
 		return targetLang;
 	}
 

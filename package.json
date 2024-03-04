@@ -78,11 +78,6 @@
           "command": "intelliparse.selectLang",
           "when": "view == intelliparse.hierachy",
           "group": "navigation"
-        },
-        {
-          "command": "intelliparse.parseFile",
-          "when": "view == intelliparse.hierachy",
-          "group": "navigation"
         }
       ],
       "view/item/context": [

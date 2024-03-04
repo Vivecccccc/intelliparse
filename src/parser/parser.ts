@@ -1,9 +1,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
-import * as path from 'path';
 import Parser from 'web-tree-sitter';
 
-import { decideLanguageFromUri } from '../utils/utils';
 
 export async function getParser(pickedLang: string, context: vscode.ExtensionContext): Promise<Parser> {
     await Parser.init();
