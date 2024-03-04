@@ -55,6 +55,11 @@
         "command": "intelliparse.selectLang",
         "title": "Select Language",
         "icon": "$(gear)"
+      },
+      {
+        "command": "intelliparse.parseFile",
+        "title": "Parse File",
+        "icon": "$(play)"
       }
     ],
     "menus": {
@@ -71,6 +76,11 @@
         },
         {
           "command": "intelliparse.selectLang",
+          "when": "view == intelliparse.hierachy",
+          "group": "navigation"
+        },
+        {
+          "command": "intelliparse.parseFile",
           "when": "view == intelliparse.hierachy",
           "group": "navigation"
         }
