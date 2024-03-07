@@ -4,7 +4,10 @@ import Parser from 'web-tree-sitter';
 
 
 export async function getParser(pickedLang: string, context: vscode.ExtensionContext): Promise<Parser> {
-    await Parser.init();
+    const wasmPath = vscode.Uri.joinPath(context.extensionUri, './resources/grammars/tree-sitter.wasm').fsPath;
+    await Parser.init({
+        locateFile: () => wasmPath.toString()
+    });
 
     let parserLang: Parser.Language;
 

@@ -114,7 +114,9 @@ export function activate(context: vscode.ExtensionContext) {
 			for (let i = 0; i < concernedFiles.length; i++) {
 				const file = concernedFiles[i];
 				const methods = lumberjack.parseFile(file);
-				parsedMethods.set(file.fsPath, methods);
+				if (methods && methods.length > 0) {
+					parsedMethods.set(file.fsPath, methods);
+				}
 			}
 			return parsedMethods;
 		}
@@ -149,13 +151,9 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 function removeSubFolders(folders: vscode.Uri[]): vscode.Uri[] {
-	folders.sort((a, b) => a.fsPath.localeCompare(b.fsPath));
-	const filteredFolders = folders.filter((folder, index, self) => {
-		if (index === 0) {
-			return true;
-		}
-		const prev = self[index - 1];
-		return !folder.fsPath.startsWith(prev.fsPath + path.sep);
+	return folders.filter((folder) => {
+		return !folders.some((otherFolder) => {
+			return folder.fsPath !== otherFolder.fsPath && folder.fsPath.startsWith(otherFolder.fsPath + path.sep);
+		});
 	});
-	return filteredFolders;
 }
