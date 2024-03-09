@@ -10,7 +10,6 @@ export function activate(context: vscode.ExtensionContext) {
 	
 	let pickedLang: string;
 	let hierachyTreeProvider: HierachyTreeProvider;
-	let hierachyTreeView: vscode.TreeView<HierachyTreeItem>;
 	let parser: Parser;
 	
 	const disposableSelectLanguage = vscode.commands.registerCommand(
@@ -49,30 +48,6 @@ export function activate(context: vscode.ExtensionContext) {
 					hierachyTreeProvider.refresh();
 				} else {
 					hierachyTreeProvider = new HierachyTreeProvider(uris, pickedLang);
-					hierachyTreeView = vscode.window.createTreeView('intelliparse.hierachy', {
-						treeDataProvider: hierachyTreeProvider
-					});
-					hierachyTreeView.onDidChangeSelection(async (e) => {
-						if (e.selection && e.selection.length > 0) {
-							let item = e.selection[0];
-							if (item instanceof MethodTreeItem) {
-								let itemMethod = item as MethodTreeItem;
-								// open file and jump to method by method.position
-								vscode.window.showTextDocument(item.uri).then(editor => {
-									let startPosition = new vscode.Position(itemMethod.method.position[0][0], itemMethod.method.position[0][1]);
-									let endPosition = new vscode.Position(itemMethod.method.position[1][0], itemMethod.method.position[1][1]);
-									editor.selection = new vscode.Selection(startPosition, endPosition);
-									editor.revealRange(new vscode.Range(startPosition, endPosition), vscode.TextEditorRevealType.InCenter);
-								});
-							}
-							else if (item instanceof HierachyTreeItem) {
-								// open only file
-								if (!fs.statSync(item.uri.fsPath).isDirectory()) {
-									vscode.window.showTextDocument(item.uri);
-								}
-							}
-						}
-					});
 				}
 			}
 		}
@@ -106,7 +81,7 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 			parser = await getParser(pickedLang, context);
 			
-			const concernedFiles = files ? files : hierachyTreeProvider.filesSnapshot;
+			const concernedFiles = files ? files : [];
 			
 			const lumberjack = langRouter(pickedLang, parser);
 			// initialize a dictionary to store the parsed methods and their file paths

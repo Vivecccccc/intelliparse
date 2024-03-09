@@ -18,9 +18,35 @@
       "properties": {
         "intelliparse.parserDefaultLanguage": {
           "type": "string",
-          "enum": ["c", "cpp", "csharp", "go", "java", "javascript", "python", "rust", "typescript"],
+          "enum": [
+            "c",
+            "cpp",
+            "csharp",
+            "go",
+            "java",
+            "javascript",
+            "python",
+            "rust",
+            "typescript"
+          ],
           "default": "python",
           "description": "Set the default language to parse"
+        },
+        "intelliparse.ignoreFolders": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "node_modules",
+            "out",
+            "dist",
+            "build",
+            "target",
+            ".vscode",
+            ".git"
+          ],
+          "description": "Folders specified here will be ignored [glob pattern allows]"
         }
       }
     },
@@ -121,6 +147,7 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
+    "minimatch": "^9.0.3",
     "web-tree-sitter": "^0.21.0"
   }
 }
